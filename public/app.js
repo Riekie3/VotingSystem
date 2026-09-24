@@ -198,23 +198,37 @@
     if (me && (!prev || prev.open !== r.open)) renderBallot();
   }
 
-  // Live updates via Server-Sent Events, with polling as a fallback.
-  let pollTimer = null;
-  function startPolling() {
-    if (pollTimer) return;
-    pollTimer = setInterval(async () => {
-      const { ok, data } = await api('/api/results').catch(() => ({ ok: false }));
-      if (ok) renderResults(data);
-    }, 4000);
-  }
-  function stopPolling() { clearInterval(pollTimer); pollTimer = null; }
+  // Live updates via long-polling: the server answers as soon as anyone votes.
+  let version = 0;
+  let inflight = null;
 
-  function connectLive() {
-    if (!('EventSource' in window)) return startPolling();
-    const es = new EventSource('/api/stream');
-    es.onmessage = e => { stopPolling(); renderResults(JSON.parse(e.data)); };
-    es.onerror = () => startPolling();
+  async function connectLive() {
+    for (;;) {
+      inflight = new AbortController();
+      const timeout = setTimeout(() => inflight.abort(), 35000);
+      try {
+        const res = await fetch('/api/results?v=' + version, { signal: inflight.signal, cache: 'no-store' });
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        if (data.version !== version) {
+          version = data.version;
+          renderResults(data);
+        }
+      } catch {
+        await new Promise(r => setTimeout(r, 2000));
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
   }
+
+  // Phones freeze background tabs; resync as soon as the page is visible again.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && inflight) {
+      version = 0;
+      inflight.abort();
+    }
+  });
 
   function renderQr() {
     const url = location.origin + '/';

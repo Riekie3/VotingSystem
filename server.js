@@ -84,18 +84,20 @@ function results() {
   return { rows, total, voters: Object.keys(state.voters).length, open: state.open };
 }
 
-// ---------- live stream (Server-Sent Events) ----------
+// ---------- live updates (long-polling) ----------
+// Clients ask for results newer than the version they have; the request is held
+// open until the next vote (or 25s). Unlike SSE, this passes straight through
+// Cloudflare Quick Tunnels, which buffer streamed responses.
 
-const streams = new Set();
+let version = Date.now(); // differs across restarts, so stale clients refresh at once
+const waiters = new Set();
 
 function broadcast() {
-  const payload = `data: ${JSON.stringify(results())}\n\n`;
-  for (const res of streams) res.write(payload);
+  version += 1;
+  const body = JSON.stringify({ version, ...results() });
+  for (const w of waiters) w(body);
+  waiters.clear();
 }
-
-setInterval(() => {
-  for (const res of streams) res.write(': ping\n\n');
-}, 20000);
 
 // ---------- http helpers ----------
 
@@ -181,21 +183,23 @@ async function handle(req, res) {
     });
   }
 
-  if (req.method === 'GET' && p === '/api/stream') {
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache, no-transform',
-      Connection: 'keep-alive',
-      'X-Accel-Buffering': 'no',
-    });
-    res.write('retry: 3000\n\n');
-    res.write(`data: ${JSON.stringify(results())}\n\n`);
-    streams.add(res);
-    req.on('close', () => streams.delete(res));
+  if (req.method === 'GET' && p === '/api/results') {
+    const since = Number(url.searchParams.get('v'));
+    if (since !== version) return send(res, 200, { version, ...results() });
+    const reply = body => {
+      clearTimeout(timer);
+      if (res.writableEnded) return;
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+      res.end(body);
+    };
+    const timer = setTimeout(() => {
+      waiters.delete(reply);
+      reply(JSON.stringify({ version, ...results() }));
+    }, 25000);
+    waiters.add(reply);
+    req.on('close', () => { clearTimeout(timer); waiters.delete(reply); });
     return;
   }
-
-  if (req.method === 'GET' && p === '/api/results') return send(res, 200, results());
 
   if (req.method === 'GET' && p === '/api/me') {
     const { vid, dev } = deviceOf(req, res);
