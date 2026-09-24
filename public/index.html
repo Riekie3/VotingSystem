@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Most Inspiring Leader</title>
+  <meta name="description" content="Anonymous live vote — WKC FY27 Retreat">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="/logo.png">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="masthead">
+    <img src="/logo.png" alt="PetWorld — Bridging Lives">
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <span class="eyebrow" id="event">WKC FY27 Retreat</span>
+      <h1 id="title">Who is your Most Inspiring Leader of the WKC FY27 Retreat?</h1>
+      <p class="lock">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        Completely anonymous &middot; no login &middot; results update live
+      </p>
+    </section>
+
+    <div class="screen-layout">
+      <div>
+        <!-- Ballot -->
+        <section class="card" id="ballot" hidden>
+          <div class="card-head">
+            <h2 id="ballot-title">Cast your vote</h2>
+            <span class="status" id="status"></span>
+          </div>
+          <div class="banner" id="banner" hidden></div>
+          <div class="grid" id="grid" role="group" aria-label="Candidates"></div>
+          <div class="thanks" id="thanks" hidden>
+            <div class="tick"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+            <h3>Thank you for voting!</h3>
+            <p id="thanks-sub">Your vote has been counted anonymously. Watch the results below.</p>
+          </div>
+        </section>
+
+        <!-- Results -->
+        <section class="card" id="results" hidden>
+          <div class="card-head">
+            <h2>Live results</h2>
+            <span class="live" id="live"><i></i><span id="live-text">Live</span></span>
+          </div>
+          <ol class="board" id="board"></ol>
+          <div class="totals">
+            <span><b id="total">0</b> votes</span>
+          </div>
+        </section>
+      </div>
+
+      <aside class="card qr-card" id="qr-card" hidden>
+        <strong>Scan to vote</strong>
+        <div class="qr" id="qr"></div>
+        <p id="qr-url"></p>
+      </aside>
+    </div>
+
+    <div class="votebar" id="votebar" hidden>
+      <button class="btn accent" id="vote-btn" disabled>Select a name to vote</button>
+    </div>
+
+    <p class="foot">Your choice is never linked to you. One vote per device.</p>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
