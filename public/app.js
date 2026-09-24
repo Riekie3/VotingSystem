@@ -6,7 +6,7 @@
 
   let cfg = null;
   let me = null;
-  let selected = null;
+  let selected = [];
   let busy = false;
   let lastResults = null;
 
@@ -63,17 +63,37 @@
     }
   }
 
+  // Normal voters pick one name; special ballots tick up to their remaining votes
+  // (different people) and submit them together.
   function select(name) {
     if (busy || !me || me.remaining <= 0 || (lastResults && !lastResults.open)) return;
-    selected = selected === name ? null : name;
-    for (const b of $('grid').children) b.setAttribute('aria-pressed', String(b.dataset.name === selected));
+    if (me.remaining === 1) {
+      selected = selected[0] === name ? [] : [name];
+    } else if (selected.includes(name)) {
+      selected = selected.filter(n => n !== name);
+    } else if (selected.length >= me.remaining) {
+      return toast(`You can pick up to ${me.remaining}. Tap a ticked name to remove it.`);
+    } else {
+      selected = [...selected, name];
+    }
+    syncSelection();
+  }
+
+  function syncSelection() {
+    for (const b of $('grid').children) b.setAttribute('aria-pressed', String(selected.includes(b.dataset.name)));
     updateVoteButton();
   }
 
   function updateVoteButton() {
     const btn = $('vote-btn');
-    btn.disabled = !selected || busy;
-    btn.textContent = busy ? 'Submitting…' : selected ? `Vote for ${selected}` : 'Select a name to vote';
+    const n = selected.length;
+    const max = me ? me.remaining : 1;
+    btn.disabled = !n || busy;
+    if (busy) btn.textContent = 'Submitting…';
+    else if (max === 1) btn.textContent = n ? `Vote for ${selected[0]}` : 'Select a name to vote';
+    else if (!n) btn.textContent = `Pick up to ${max} people`;
+    else if (n < max) btn.textContent = `Submit ${n} vote${n > 1 ? 's' : ''} · ${n} of ${max} picked`;
+    else btn.textContent = `Submit my ${n} votes`;
   }
 
   function banner(text, warn) {
@@ -109,7 +129,7 @@
     }
 
     if (closed) banner('Voting is closed. Thank you, everyone!', true);
-    else if (me.notice === 'special' && !done) banner(`Special ballot: you can vote ${me.allowed} times on this device. Pick one name per vote.`);
+    else if (me.special && !done) banner(`Special ballot: tick up to ${me.remaining} different people, then submit them all at once.`);
     else if (me.notice === 'claimed') banner('This special link has already been used on another device. You can still cast a regular vote.', true);
     else if (me.notice === 'invalid') banner('That link isn’t valid. You can still cast a regular vote.', true);
     else banner('');
@@ -119,23 +139,26 @@
   }
 
   async function castVote() {
-    if (!selected || busy) return;
+    if (!selected.length || busy) return;
+    const names = selected;
+    const left = me.remaining - names.length;
+    if (left > 0 && me.remaining > 1 &&
+        !confirm(`You picked ${names.length} of ${me.remaining}. Submit now? You can use the other ${left} later.`)) return;
     busy = true;
     updateVoteButton();
-    const name = selected;
-    const { ok, data } = await api('/api/vote', { method: 'POST', body: JSON.stringify({ candidate: name }) })
-      .catch(() => ({ ok: false, data: { error: 'Network problem — please try again.' } }));
+    const { ok, data } = await api('/api/vote', { method: 'POST', body: JSON.stringify({ candidates: names }) })
+      .catch(() => ({ ok: false, data: { error: 'Network problem. Please try again.' } }));
     busy = false;
     if (data.allowed) me = { ...me, ...data, notice: me.notice };
-    selected = null;
-    for (const b of $('grid').children) b.setAttribute('aria-pressed', 'false');
-    updateVoteButton();
     if (ok) {
-      toast(me.remaining > 0 ? `Vote for ${name} counted — ${me.remaining} left` : `Vote for ${name} counted. Thank you!`);
+      selected = [];
+      const what = names.length === 1 ? `Vote for ${names[0]}` : `Votes for ${names.length} people`;
+      toast(me.remaining > 0 ? `${what} counted. ${me.remaining} left.` : `${what} counted. Thank you!`);
       if (me.remaining <= 0) window.scrollTo({ top: $('ballot').offsetTop - 12, behavior: 'smooth' });
     } else {
       toast(data.error || 'Something went wrong.');
     }
+    syncSelection();
     renderBallot();
   }
 

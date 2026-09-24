@@ -225,15 +225,23 @@ async function handle(req, res) {
     let body;
     try { body = await readJson(req); } catch { return send(res, 400, { error: 'Bad request' }); }
     if (!state.open) return send(res, 409, { error: 'Voting is closed.', vid, ...me(dev) });
-    const name = body.candidate;
-    if (typeof name !== 'string' || !config.candidates.includes(name)) {
+    // Special ballots submit several different names at once; all-or-nothing.
+    const names = Array.isArray(body.candidates) ? body.candidates : [body.candidate];
+    if (!names.length || !names.every(n => typeof n === 'string' && config.candidates.includes(n))) {
       return send(res, 400, { error: 'Unknown candidate.', vid, ...me(dev) });
     }
-    if (me(dev).remaining <= 0) {
+    if (new Set(names).size !== names.length) {
+      return send(res, 400, { error: 'Pick different people for each vote.', vid, ...me(dev) });
+    }
+    const { remaining } = me(dev);
+    if (remaining <= 0) {
       return send(res, 409, { error: 'You have already used all your votes on this device.', vid, ...me(dev) });
     }
-    state.tally[name] += 1;
-    state.voters[dev] = (state.voters[dev] || 0) + 1;
+    if (names.length > remaining) {
+      return send(res, 409, { error: `You only have ${remaining} vote${remaining > 1 ? 's' : ''} left.`, vid, ...me(dev) });
+    }
+    for (const n of names) state.tally[n] += 1;
+    state.voters[dev] = (state.voters[dev] || 0) + names.length;
     saveState();
     broadcast();
     return send(res, 200, { ok: true, vid, ...me(dev) });
