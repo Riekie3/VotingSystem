@@ -27,6 +27,57 @@
     return { ok: res.ok, data };
   }
 
+  // Counts a number up (or down) to its new value.
+  function tween(node, to) {
+    const from = Number(node.dataset.v ?? node.textContent) || 0;
+    node.dataset.v = to;
+    if (from === to) { node.textContent = to; return; }
+    const t0 = performance.now();
+    const step = now => {
+      const p = Math.min(1, (now - t0) / 700);
+      node.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  // Short burst of brand-coloured confetti after a vote.
+  function confetti() {
+    const c = document.createElement("canvas");
+    c.className = "confetti";
+    document.body.append(c);
+    const dpr = window.devicePixelRatio || 1;
+    const w = innerWidth, h = innerHeight;
+    c.width = w * dpr;
+    c.height = h * dpr;
+    const ctx = c.getContext("2d");
+    ctx.scale(dpr, dpr);
+    const colors = ["#f7941d", "#ffb547", "#d8700a", "#ffffff", "#939598", "#ffd66b"];
+    const parts = Array.from({ length: 150 }, () => ({
+      x: w / 2 + (Math.random() - .5) * 80, y: h * .42,
+      vx: (Math.random() - .5) * 15, vy: -Math.random() * 13 - 5,
+      s: 5 + Math.random() * 7, r: Math.random() * 6.3, vr: (Math.random() - .5) * .35,
+      c: colors[Math.floor(Math.random() * colors.length)],
+    }));
+    const t0 = performance.now();
+    const tick = now => {
+      const t = now - t0;
+      ctx.clearRect(0, 0, w, h);
+      for (const p of parts) {
+        p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, 1 - t / 2600);
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.r);
+        ctx.fillStyle = p.c;
+        ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
+        ctx.restore();
+      }
+      if (t < 2600) requestAnimationFrame(tick); else c.remove();
+    };
+    requestAnimationFrame(tick);
+  }
+
   function toast(msg) {
     const t = $('toast');
     t.textContent = msg;
@@ -52,6 +103,7 @@
       b.dataset.name = name;
       b.append(el('span', 'opt-rank'), el('span', 'opt-name', name));
       b.addEventListener('click', () => toggle(name));
+      b.style.setProperty('--i', box.children.length);
       box.append(b);
     }
   }
@@ -98,7 +150,7 @@
       const name = picks[i];
       const li = el('li', 'pick' + (name ? '' : ' empty-slot'));
       const head = el('div', 'pick-head');
-      head.append(el('span', 'pick-badge', ORD[i]));
+      head.append(el('span', 'pick-badge' + (name ? ' m' + (i + 1) : ''), ORD[i]));
       if (!name) {
         head.append(el('span', 'pick-placeholder', 'Tap a strategy above'));
         li.append(head);
@@ -189,6 +241,7 @@
     busy = false;
     if ('voted' in data) me = { ...me, voted: data.voted };
     if (ok) {
+      confetti();
       toast('Your ranking has been counted. Thank you!');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
@@ -207,7 +260,7 @@
     if (!r) {
       r = el('li', 'row rank-row');
       r.dataset.name = name;
-      r.innerHTML = '<span class="rank"></span><span class="main"><span class="name"></span><span class="track"><span class="fill"></span></span></span><span class="count"></span>';
+      r.innerHTML = '<span class="rank"></span><span class="main"><span class="name"></span><span class="track"><span class="fill"></span></span></span><span class="count"><span class="num">0</span><small></small></span>';
       r.querySelector('.name').textContent = name;
       // Clear the vote flash once it ends, or moving the row would replay it.
       r.addEventListener('animationend', e => { if (e.animationName === 'flash') r.classList.remove('bump'); });
@@ -244,9 +297,9 @@
       if (row.points !== lastPoints) { rank = i + 1; lastPoints = row.points; }
       e.querySelector('.rank').textContent = rank;
       e.classList.toggle('lead', rank === 1);
-      const count = e.querySelector('.count');
-      count.textContent = row.points;
-      count.append(el('small', null, row.points === 1 ? 'pt' : 'pts'));
+      for (const k of [1, 2, 3]) e.classList.toggle('r' + k, rank === k);
+      tween(e.querySelector('.num'), row.points);
+      e.querySelector('.count small').textContent = row.points === 1 ? 'pt' : 'pts';
       if (prev && (prevPoints.get(row.name) || 0) < row.points) {
         e.classList.remove('bump');
         void e.offsetWidth;
@@ -270,7 +323,7 @@
     });
 
     $('empty').hidden = top.length > 0;
-    $('total').textContent = r.responses;
+    tween($('total'), r.responses);
     $('live').classList.toggle('off', !r.open);
     $('live-text').textContent = r.open ? 'Live' : 'Voting closed';
 
@@ -302,7 +355,7 @@
         const key = `${g.name}\n${it.rank}\n${it.why}`;
         const li = el('li', appliesLoaded && !seenQuotes.has(key) ? 'new' : null);
         seenQuotes.add(key);
-        li.append(el('b', null, ORD[it.rank]), document.createTextNode(it.why));
+        li.append(el('b', 'm' + (it.rank + 1), ORD[it.rank]), document.createTextNode(it.why));
         ul.append(li);
       }
       card.append(head, ul);

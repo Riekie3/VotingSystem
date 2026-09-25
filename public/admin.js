@@ -67,7 +67,7 @@
         const ul = el('ul', 'quotes');
         for (const it of items) {
           const li = el('li');
-          li.append(el('b', null, `Ranked ${ORD[it.rank]}`), document.createTextNode(it.why));
+          li.append(el('b', 'm' + (it.rank + 1), `Ranked ${ORD[it.rank]}`), document.createTextNode(it.why));
           ul.append(li);
         }
         det.append(ul);
