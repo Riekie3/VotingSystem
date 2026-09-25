@@ -275,6 +275,40 @@
     $('live-text').textContent = r.open ? 'Live' : 'Voting closed';
 
     if (me && (!prev || prev.open !== r.open)) renderBallot();
+    if (screenMode) loadApplies(r.responses);
+  }
+
+  // ---------- projector: "How people will apply them" below the fold ----------
+  const seenQuotes = new Set();
+  let appliesLoaded = false;
+
+  async function loadApplies(responses) {
+    const { ok, data } = await api('/api/responses').catch(() => ({ ok: false }));
+    if (!ok) return;
+    $('applies').hidden = false;
+    $('applies-count').textContent = `${responses} response${responses === 1 ? '' : 's'}`;
+    $('applies-empty').hidden = data.groups.length > 0;
+    const box = $('groups');
+    box.textContent = '';
+    for (const g of data.groups) {
+      const card = el('article', 'group');
+      const head = el('div', 'group-head');
+      head.append(
+        el('span', 'group-name', g.name),
+        el('span', 'group-meta', `${g.points} pts · ${g.items.length} answer${g.items.length === 1 ? '' : 's'}`),
+      );
+      const ul = el('ul');
+      for (const it of g.items) {
+        const key = `${g.name}\n${it.rank}\n${it.why}`;
+        const li = el('li', appliesLoaded && !seenQuotes.has(key) ? 'new' : null);
+        seenQuotes.add(key);
+        li.append(el('b', null, ORD[it.rank]), document.createTextNode(it.why));
+        ul.append(li);
+      }
+      card.append(head, ul);
+      box.append(card);
+    }
+    appliesLoaded = true;
   }
 
   // Live updates via long-polling: the server answers as soon as anyone votes.

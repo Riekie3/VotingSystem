@@ -124,3 +124,54 @@
   body.screen .rank-row .track { height: 2.6vh; }
   body.screen .rank-row .count small { font-size: 1.9vh; }
 }
+
+/* ---------- projector: answers below the fold ---------- */
+.scroll-hint { display: none; }
+
+@media (min-width: 861px) and (min-height: 521px) {
+  /* First screen stays exactly one viewport tall; the page scrolls to the answers. */
+  body.screen { height: auto !important; overflow: visible !important; display: block !important; }
+  body.screen .fold { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  body.screen .scroll-hint { display: block; font-size: clamp(12px, 1.7vh, 20px) !important; color: var(--accent-ink) !important; font-weight: 600; margin-top: 2.4vh !important; word-break: normal !important; }
+}
+
+.applies { max-width: 1760px; padding: 40px 3vw 64px; border-top: 4px solid var(--accent); }
+.applies-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.applies-head h2 { margin: 0; font-size: clamp(22px, 2.4vw, 42px); letter-spacing: -.02em; }
+.applies-head .live { font-size: clamp(13px, 1.1vw, 20px); }
+.groups { columns: 2 520px; column-gap: 24px; }
+.group {
+  break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 24px;
+  padding: 20px 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.group-name { font-weight: 800; font-size: clamp(18px, 1.9vw, 34px); line-height: 1.25; }
+.group-meta { flex: none; color: var(--muted); font-size: clamp(12px, .95vw, 17px); font-variant-numeric: tabular-nums; }
+.group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.group li {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: clamp(16px, 1.55vw, 28px);
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.group li b {
+  display: inline-block;
+  font-size: .7em;
+  font-weight: 800;
+  padding: 2px 8px;
+  margin-right: 8px;
+  border-radius: 999px;
+  vertical-align: .15em;
+  background: var(--accent);
+  color: #1a1003;
+}
+.group li.new { animation: flash 2.6s ease-out; }

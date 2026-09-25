@@ -201,6 +201,20 @@ async function handle(req, res) {
     return;
   }
 
+  // Explanations grouped by strategy, for the section below the projector view.
+  if (req.method === 'GET' && p === '/api/responses') {
+    const rows = results().rows;
+    const groups = new Map(rows.map(r => [r.name, { name: r.name, points: r.points, ranks: r.ranks, items: [] }]));
+    for (const resp of state.responses) {
+      resp.ranking.forEach((x, i) => { if (x.why) groups.get(x.name)?.items.push({ rank: i, why: x.why }); });
+    }
+    const list = [...groups.values()]
+      .filter(g => g.items.length)
+      .sort((a, b) => b.points - a.points || b.ranks[0] - a.ranks[0] || config.options.indexOf(a.name) - config.options.indexOf(b.name));
+    for (const g of list) g.items.sort((a, b) => a.rank - b.rank);
+    return send(res, 200, { groups: list.map(({ ranks, ...g }) => g) });
+  }
+
   if (req.method === 'GET' && p === '/api/me') {
     const { vid, dev } = deviceOf(req, res);
     return send(res, 200, { vid, ...me(dev) });

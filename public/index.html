@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/rank.css">
 </head>
 <body>
+  <div class="fold">
   <header class="masthead">
     <img src="/logo.png" alt="PetWorld — Bridging Lives">
   </header>
@@ -73,6 +74,7 @@
         <strong>Scan to vote</strong>
         <div class="qr" id="qr"></div>
         <p id="qr-url"></p>
+        <p class="scroll-hint">↓ Scroll down to see how people will apply them</p>
       </aside>
     </div>
 
@@ -82,6 +84,17 @@
 
     <p class="foot">Your answers are never linked to you. One response per device.</p>
   </main>
+  </div>
+
+  <!-- Projector only: below the fold -->
+  <section class="wrap applies" id="applies" hidden>
+    <div class="applies-head">
+      <h2>How people will apply them</h2>
+      <span class="live"><i></i><span id="applies-count">0 responses</span></span>
+    </div>
+    <p class="empty" id="applies-empty">Explanations will appear here as people respond.</p>
+    <div class="groups" id="groups"></div>
+  </section>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
