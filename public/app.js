@@ -163,57 +163,83 @@
   }
 
   // ---------- results ----------
+  const TOP = 5;
   const rowEls = new Map();
 
+  function rowEl(name) {
+    let el = rowEls.get(name);
+    if (!el) {
+      el = document.createElement('li');
+      el.className = 'row';
+      el.dataset.name = name;
+      el.innerHTML = '<span class="rank"></span><span class="name"></span><span class="track"><span class="fill"></span></span><span class="count"></span>';
+      el.querySelector('.name').textContent = name;
+      // Clear the vote flash once it ends, or moving the row would replay it.
+      el.addEventListener('animationend', e => { if (e.animationName === 'flash') el.classList.remove('bump'); });
+      rowEls.set(name, el);
+    }
+    return el;
+  }
+
+  // Shows the top 5 (people with at least one vote). Rows slide to their new
+  // place when the order changes, and newcomers slide in.
   function renderResults(r) {
     const prev = lastResults;
     lastResults = r;
     const board = $('board');
-    const max = Math.max(1, ...r.rows.map(x => x.votes));
     const prevVotes = new Map((prev?.rows || []).map(x => [x.name, x.votes]));
-    const sorted = [...r.rows].sort((a, b) => b.votes - a.votes || cfg.candidates.indexOf(a.name) - cfg.candidates.indexOf(b.name));
+    const sorted = r.rows
+      .filter(x => x.votes > 0)
+      .sort((a, b) => b.votes - a.votes || cfg.candidates.indexOf(a.name) - cfg.candidates.indexOf(b.name));
+    const top = sorted.slice(0, TOP);
+    const max = Math.max(1, ...top.map(x => x.votes));
 
     // FLIP: remember positions before reordering.
     const before = new Map();
-    for (const [name, el] of rowEls) before.set(name, el.getBoundingClientRect().top);
+    for (const el of board.children) before.set(el.dataset.name, el.getBoundingClientRect().top);
+    const keep = new Set(top.map(x => x.name));
+    for (const el of [...board.children]) if (!keep.has(el.dataset.name)) el.remove();
 
     let rank = 0;
     let lastVotes = null;
-    sorted.forEach((row, i) => {
-      let el = rowEls.get(row.name);
-      if (!el) {
-        el = document.createElement('li');
-        el.className = 'row';
-        el.innerHTML = '<span class="rank"></span><span class="name"></span><span class="track"><span class="fill"></span></span><span class="count"></span>';
-        el.querySelector('.name').textContent = row.name;
-        rowEls.set(row.name, el);
-      }
+    top.forEach((row, i) => {
+      const el = rowEl(row.name);
       if (row.votes !== lastVotes) { rank = i + 1; lastVotes = row.votes; }
       el.querySelector('.rank').textContent = rank;
-      el.querySelector('.fill').style.width = (row.votes / max) * 100 + '%';
+      el.classList.toggle('lead', rank === 1);
       const pct = r.total ? Math.round((row.votes / r.total) * 100) : 0;
       const count = el.querySelector('.count');
       count.textContent = row.votes;
       const small = document.createElement('small');
       small.textContent = pct + '%';
       count.append(small);
-      el.classList.toggle('lead', row.votes > 0 && row.votes === sorted[0].votes);
-      if (prev && prevVotes.get(row.name) !== undefined && prevVotes.get(row.name) < row.votes) {
+      if (prev && (prevVotes.get(row.name) || 0) < row.votes) {
         el.classList.remove('bump');
         void el.offsetWidth;
         el.classList.add('bump');
       }
-      board.append(el);
+      if (board.children[i] !== el) board.insertBefore(el, board.children[i] || null);
     });
 
-    for (const [name, el] of rowEls) {
-      const old = before.get(name);
-      if (old === undefined) continue;
+    const ease = 'cubic-bezier(.2,.8,.2,1)';
+    for (const el of board.children) {
+      const old = before.get(el.dataset.name);
+      if (old === undefined) {
+        el.animate([{ opacity: 0, transform: 'translateX(-32px)' }, { opacity: 1, transform: 'none' }], { duration: 600, easing: ease });
+        continue;
+      }
       const delta = old - el.getBoundingClientRect().top;
-      if (!delta) continue;
-      el.animate([{ transform: `translateY(${delta}px)` }, { transform: 'none' }], { duration: 500, easing: 'cubic-bezier(.2,.8,.2,1)' });
+      if (delta) el.animate([{ transform: `translateY(${delta}px)` }, { transform: 'none' }], { duration: 700, easing: ease });
     }
+    // Set bar widths after layout so new rows grow from zero.
+    requestAnimationFrame(() => {
+      for (const row of top) rowEl(row.name).querySelector('.fill').style.width = (row.votes / max) * 100 + '%';
+    });
 
+    const cutoff = top.length === TOP ? top[TOP - 1].votes : null;
+    const tiedOut = cutoff ? sorted.slice(TOP).filter(x => x.votes === cutoff).length : 0;
+    $('more').textContent = tiedOut ? `+${tiedOut} more tied on ${cutoff} vote${cutoff > 1 ? 's' : ''}` : '';
+    $('empty').hidden = top.length > 0;
     $('total').textContent = r.total;
     $('live').classList.toggle('off', !r.open);
     $('live-text').textContent = r.open ? 'Live' : 'Voting closed';

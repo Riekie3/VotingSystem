@@ -44,12 +44,14 @@
         <!-- Results -->
         <section class="card" id="results" hidden>
           <div class="card-head">
-            <h2>Live results</h2>
+            <h2>Live results <span class="h2-sub">Top 5</span></h2>
             <span class="live" id="live"><i></i><span id="live-text">Live</span></span>
           </div>
+          <p class="empty" id="empty">Waiting for the first vote…</p>
           <ol class="board" id="board"></ol>
           <div class="totals">
-            <span><b id="total">0</b> votes</span>
+            <span><b id="total">0</b> votes cast</span>
+            <span id="more"></span>
           </div>
         </section>
       </div>

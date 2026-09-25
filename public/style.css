@@ -234,8 +234,14 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
 .row.lead .name::after { content: " \2605"; color: var(--accent); }
 .row .count { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
 .row .count small { display: block; font-weight: 500; font-size: 11px; color: var(--muted); }
-.row.bump .count { animation: bump .6s; }
-@keyframes bump { 30% { color: var(--accent); transform: scale(1.2); } }
+.row.bump .count { animation: bump .7s; }
+.row.bump { animation: flash 1.4s ease-out; }
+@keyframes bump { 30% { color: var(--accent); transform: scale(1.25); } }
+@keyframes flash { 0% { background: color-mix(in srgb, var(--accent) 28%, transparent); } 100% { background: transparent; } }
+.row { border-radius: 10px; }
+
+.h2-sub { font-size: .7em; font-weight: 600; color: var(--muted); margin-left: 6px; }
+.empty { text-align: center; color: var(--muted); padding: 24px 0; margin: 0; }
 
 .totals { display: flex; gap: 18px; font-size: 13px; color: var(--muted); margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
 .totals b { color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -254,30 +260,67 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
 
 [hidden] { display: none !important; }
 
-/* ---------- big screen (/results) ---------- */
-body.screen .wrap { max-width: 1280px; }
-body.screen .hero h1 { max-width: 28ch; font-size: clamp(28px, 3.4vw, 52px); }
-body.screen .screen-layout { display: grid; grid-template-columns: 1fr 260px; gap: 24px; align-items: start; }
-body.screen .row { grid-template-columns: 40px minmax(120px, 220px) 1fr 90px; font-size: clamp(15px, 1.5vw, 22px); padding: 6px 0; }
-body.screen .row .track { height: 22px; }
-body.screen .row .fill { border-radius: 0 11px 11px 0; }
-.qr-card { text-align: center; position: sticky; top: 20px; }
+/* ---------- big screen (/results): one static screen, sized by viewport height ---------- */
+.qr-card { text-align: center; }
 .qr-card .qr { background: #fff; padding: 12px; border-radius: 12px; display: inline-block; }
 .qr-card .qr img, .qr-card .qr svg { display: block; width: 200px; height: 200px; }
 .qr-card p { font-size: 14px; color: var(--muted); margin: 10px 0 0; word-break: break-all; }
 .qr-card strong { display: block; font-size: 18px; margin-bottom: 10px; }
 
-@media (max-width: 860px) {
-  body.screen .screen-layout { grid-template-columns: 1fr; }
-  .qr-card { position: static; }
+@media (min-width: 861px) and (min-height: 521px) {
+  body.screen { height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+  body.screen .masthead { padding: 1.4vh 16px; border-bottom-width: .5vh; }
+  body.screen .masthead img { width: auto; height: 7vh; max-width: 60vw; }
+  body.screen main.wrap { flex: 1; min-height: 0; width: 100%; max-width: 1760px; display: flex; flex-direction: column; padding: 0 3vw; }
+  body.screen .hero { padding: 2.2vh 0 2vh; }
+  body.screen .eyebrow { font-size: clamp(11px, 1.5vh, 18px); padding: .5vh 1.2vh; }
+  body.screen .hero h1 { font-size: clamp(22px, 4.6vh, 60px); margin: 1.2vh auto 0; max-width: 34ch; }
+  body.screen .hero .lock { display: none; }
+
+  body.screen .screen-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr minmax(240px, 25vw); gap: 2.2vw; padding-bottom: 3vh; }
+  body.screen .screen-layout > div { display: flex; flex-direction: column; min-height: 0; }
+
+  body.screen #results { flex: 1; min-height: 0; margin: 0; display: flex; flex-direction: column; padding: 2.4vh 2vw 2vh; }
+  body.screen #results .card-head { margin-bottom: 1.2vh; }
+  body.screen #results .card-head h2 { font-size: clamp(16px, 3vh, 36px); }
+  body.screen .live { font-size: clamp(13px, 2.2vh, 26px); gap: 1vh; }
+  body.screen .live i { width: 1.2vh; height: 1.2vh; }
+  body.screen .empty { flex: 1; display: grid; place-items: center; font-size: clamp(16px, 3.4vh, 40px); }
+
+  body.screen .board { flex: 1; min-height: 0; display: grid; grid-template-rows: repeat(5, 1fr); }
+  body.screen .row {
+    grid-template-columns: 7.5vh minmax(0, 30%) 1fr 12vh;
+    gap: 1.6vw;
+    padding: 0 1vw;
+    font-size: clamp(16px, 4.4vh, 56px);
+    border-radius: 1.4vh;
+  }
+  body.screen .row .rank {
+    width: 7vh; height: 7vh; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--line); color: var(--ink);
+    font-size: 3vh; font-weight: 800; text-align: center;
+  }
+  body.screen .row.lead .rank { background: var(--accent); color: #1a1003; }
+  body.screen .row .name { font-weight: 700; letter-spacing: -.01em; }
+  body.screen .row .track { height: 4vh; }
+  body.screen .row .fill { border-radius: 0 2vh 2vh 0; transition-duration: .9s; }
+  body.screen .row .count { font-size: 5vh; line-height: 1; font-weight: 800; }
+  body.screen .row .count small { font-size: 1.9vh; margin-top: .6vh; }
+  body.screen .totals { font-size: clamp(13px, 2.1vh, 26px); margin-top: 1.4vh; padding-top: 1.4vh; justify-content: space-between; }
+
+  body.screen .qr-card { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3vh 1.5vw; }
+  body.screen .qr-card strong { font-size: clamp(18px, 3.6vh, 44px); margin-bottom: 2.4vh; }
+  body.screen .qr-card .qr { padding: 1.6vh; border-radius: 1.6vh; }
+  body.screen .qr-card .qr svg { width: min(19vw, 40vh); height: min(19vw, 40vh); }
+  body.screen .qr-card p { font-size: clamp(12px, 1.8vh, 22px); margin-top: 2vh; }
 }
 @media (max-width: 480px) {
   .card { padding: 16px; }
   .grid { grid-template-columns: 1fr 1fr; gap: 8px; }
   .cand { font-size: 14px; padding: 8px 10px; gap: 8px; }
   .avatar { width: 30px; height: 30px; font-size: 12px; }
-  .row, body.screen .row { grid-template-columns: 22px 84px 1fr 52px; gap: 8px; font-size: 14px; padding: 6px 0; }
-  body.screen .row .track { height: 14px; }
+  .row { grid-template-columns: 22px 84px 1fr 52px; gap: 8px; font-size: 14px; padding: 6px 0; }
   .hero { padding-top: 22px; }
   .masthead { padding: 14px 16px 12px; }
   .masthead img { width: min(220px, 62vw); }
