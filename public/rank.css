@@ -1,0 +1,124 @@
+/* Ranking-specific styles, layered on the shared style.css */
+
+.hero h1 { max-width: 30ch; font-size: clamp(22px, 4.6vw, 34px); }
+.subtitle { color: var(--ink) !important; font-size: 15px !important; margin: 0 auto 10px !important; max-width: 46ch; }
+
+/* ---------- strategy options ---------- */
+.options { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media (min-width: 720px) { .options { grid-template-columns: 1fr 1fr; } }
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 58px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.opt:hover:not(:disabled) { border-color: var(--grey); }
+.opt:active:not(:disabled) { transform: scale(.985); }
+.opt:disabled { cursor: default; opacity: .55; }
+.opt:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 60%, transparent); outline-offset: 2px; }
+.opt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+
+.opt-rank {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px dashed var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 800;
+}
+.opt[aria-pressed="true"] .opt-rank { border: 0; background: var(--accent); color: #1a1003; }
+.opt-name { flex: 1; min-width: 0; }
+
+/* ---------- picked slots + explanations ---------- */
+.picks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.pick { border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; }
+.pick.empty-slot { border-style: dashed; }
+.pick-head { display: flex; align-items: center; gap: 10px; }
+.pick-badge {
+  flex: none;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #1a1003;
+}
+.empty-slot .pick-badge { background: var(--line); color: var(--muted); }
+.pick-name { flex: 1; min-width: 0; font-weight: 700; line-height: 1.3; }
+.pick-placeholder { color: var(--muted); font-size: 14px; }
+.pick-tools { display: flex; gap: 4px; flex: none; }
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+.icon-btn:disabled { opacity: .3; cursor: default; }
+.why {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px; /* 16px stops iOS zooming in on focus */
+  line-height: 1.4;
+  resize: vertical;
+  min-height: 64px;
+}
+.why:focus { outline: none; border-color: var(--accent); }
+
+@media (max-width: 480px) {
+  .pick-head { flex-wrap: wrap; }
+  .pick-name { flex-basis: calc(100% - 70px); }
+  .pick-tools { margin-left: auto; }
+}
+
+/* ---------- results rows: name above its bar, so long names fit ---------- */
+.rank-row { grid-template-columns: 28px 1fr 56px !important; }
+.rank-row .main { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.rank-row .name {
+  white-space: normal !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.25;
+}
+.rank-row .track { height: 10px; }
+
+@media (min-width: 861px) and (min-height: 521px) {
+  body.screen .hero h1 { font-size: clamp(20px, 3.8vh, 50px); max-width: 44ch; }
+  body.screen .subtitle { font-size: clamp(13px, 2.2vh, 28px) !important; margin: 1vh auto 0 !important; max-width: 60ch; }
+  body.screen .rank-row { grid-template-columns: 7.5vh 1fr 12vh !important; }
+  body.screen .rank-row .main { gap: 1.1vh; }
+  body.screen .rank-row .name { font-size: clamp(15px, 3.4vh, 44px); }
+  body.screen .rank-row .track { height: 2.6vh; }
+  body.screen .rank-row .count small { font-size: 1.9vh; }
+}
