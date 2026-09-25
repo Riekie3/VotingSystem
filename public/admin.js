@@ -94,9 +94,15 @@
     });
   }
 
+  // Reload when the page files change, so an open admin tab gets updates.
+  let build = null;
+
   async function refresh() {
     try {
-      render(await api('/api/admin/info'));
+      const d = await api('/api/admin/info');
+      if (d.build && build && d.build !== build) return location.reload();
+      build = build || d.build;
+      render(d);
       const local = /^(localhost|127\.|\[::1\])/.test(location.hostname);
       $('err').hidden = !local;
       $('err').textContent = local

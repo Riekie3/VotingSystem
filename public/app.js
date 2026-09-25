@@ -302,6 +302,18 @@
   let version = 0;
   let inflight = null;
 
+  // Reload when the page files change (the server reports a build fingerprint),
+  // so open tabs such as the projector pick up design updates on their own.
+  // Never reloads while someone is part-way through picking or typing.
+  let build = null;
+  let reloadTimer = null;
+  function checkBuild(b) {
+    if (!b) return;
+    if (!build) build = b;
+    if (b === build || reloadTimer) return;
+    if (screenMode || (!busy && selected.length === 0)) reloadTimer = setTimeout(() => location.reload(), screenMode ? 0 : 3000);
+  }
+
   async function connectLive() {
     for (;;) {
       inflight = new AbortController();
@@ -310,6 +322,7 @@
         const res = await fetch('/api/results?v=' + version, { signal: inflight.signal, cache: 'no-store' });
         if (!res.ok) throw new Error(res.status);
         const data = await res.json();
+        checkBuild(data.build);
         if (data.version !== version) {
           version = data.version;
           renderResults(data);

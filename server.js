@@ -81,7 +81,7 @@ function me(dev, notice) {
 function results() {
   const rows = config.candidates.map(name => ({ name, votes: state.tally[name] || 0 }));
   const total = rows.reduce((n, r) => n + r.votes, 0);
-  return { rows, total, voters: Object.keys(state.voters).length, open: state.open };
+  return { rows, total, voters: Object.keys(state.voters).length, open: state.open, build: assetVersion() };
 }
 
 // ---------- live updates (long-polling) ----------
@@ -149,9 +149,30 @@ const STATIC = {
   '/logo.png': ['logo.png', 'image/png'],
 };
 
+// Fingerprint of the page files. Pages compare it on every live update and
+// reload themselves when it changes, so open tabs (e.g. the projector) always
+// show the latest design; HTML also gets ?v= on its assets to defeat caching.
+let assetCache = { at: 0, v: '' };
+function assetVersion() {
+  if (Date.now() - assetCache.at < 2000) return assetCache.v;
+  const h = crypto.createHash('sha1');
+  for (const f of fs.readdirSync(PUBLIC_DIR).sort()) {
+    const st = fs.statSync(path.join(PUBLIC_DIR, f));
+    h.update(`${f}:${st.size}:${st.mtimeMs}`);
+  }
+  assetCache = { at: Date.now(), v: h.digest('hex').slice(0, 10) };
+  return assetCache.v;
+}
+
 function serveStatic(res, file, type) {
   fs.readFile(path.join(PUBLIC_DIR, file), (err, buf) => {
     if (err) return send(res, 404, { error: 'Not found' });
+    if (type.startsWith('text/html')) {
+      const v = assetVersion();
+      const html = buf.toString('utf8').replace(/(href|src)="\/([\w-]+\.(?:css|js))"/g,`$1="/$2?v=${v}"`);
+      res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-store' });
+      return res.end(html);
+    }
     res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-cache' });
     res.end(buf);
   });
