@@ -23,7 +23,7 @@ The admin key is printed when the server starts. It's also stored in `data/state
 ## Rules
 
 - **One response per device.** It must be exactly 3 different strategies. No login.
-- **Explanations are optional.** To make them required, set `"requireExplanation": true` in `config.json` and restart.
+- **Explanations are required.** To make them optional, set `"requireExplanation": false` in `config.json` and restart.
 - **Anonymity.** Responses are stored without any device link, and in shuffled order.
 - **Device limit.** Like the first vote, the one-response limit is enforced with a browser cookie. A private/incognito window could get around it.
 

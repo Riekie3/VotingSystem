@@ -8,7 +8,7 @@
     2,
     1
   ],
-  "requireExplanation": false,
+  "requireExplanation": true,
   "maxExplanation": 500,
   "showResultsBeforeVoting": true,
   "options": [

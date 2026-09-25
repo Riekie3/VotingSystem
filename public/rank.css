@@ -93,6 +93,8 @@
   min-height: 64px;
 }
 .why:focus { outline: none; border-color: var(--accent); }
+.why:required:placeholder-shown { border-style: dashed; border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+#why-note { font-weight: 700; color: var(--accent-ink); }
 
 @media (max-width: 480px) {
   .pick-head { flex-wrap: wrap; }

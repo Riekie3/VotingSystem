@@ -130,14 +130,19 @@
       ta.placeholder = 'How will you apply this in your work?' + (cfg.requireExplanation ? '' : ' (optional)');
       ta.value = whyByName.get(name) || '';
       ta.setAttribute('aria-label', `How you will apply ${name}`);
+      ta.required = !!cfg.requireExplanation;
       ta.addEventListener('input', () => { whyByName.set(name, ta.value); updateVoteButton(); });
       li.append(head, ta);
       list.append(li);
     }
   }
 
+  function missingCount() {
+    return cfg.requireExplanation ? picks.filter(n => !(whyByName.get(n) || '').trim()).length : 0;
+  }
+
   function missingWhy() {
-    return cfg.requireExplanation && picks.some(n => !(whyByName.get(n) || '').trim());
+    return missingCount() > 0;
   }
 
   function updateVoteButton() {
@@ -147,7 +152,10 @@
     btn.disabled = busy || left > 0 || missingWhy();
     if (busy) btn.textContent = 'Submitting…';
     else if (left > 0) btn.textContent = n ? `Pick ${left} more · ${n} of ${cfg.picks}` : `Pick your top ${cfg.picks} strategies`;
-    else if (missingWhy()) btn.textContent = 'Explain how you will apply each';
+    else if (missingWhy()) {
+      const m = missingCount();
+      btn.textContent = m === cfg.picks ? 'Explain how you will apply each one' : `Explain ${m} more to submit`;
+    }
     else btn.textContent = 'Submit my ranking';
   }
 
