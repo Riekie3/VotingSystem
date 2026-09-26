@@ -1,0 +1,28 @@
+{
+  "title": "Please rank the 3 most valuable strategies you learned from this retreat",
+  "subtitle": "(For each strategy, briefly explain how you will apply it in your work)",
+  "event": "WKC FY27 Retreat",
+  "picks": 3,
+  "points": [
+    3,
+    2,
+    1
+  ],
+  "requireExplanation": true,
+  "maxExplanation": 500,
+  "showResultsBeforeVoting": true,
+  "options": [
+    "AnV",
+    "CES",
+    "EnE via AI",
+    "Product superiority - packaging & palatability",
+    "What gets Measured Gets Improved",
+    "Consistency & Persistency - Never give up",
+    "Urgency - Do It Now",
+    "Talent Management - put the right people to the Right Place",
+    "Change Management - Never change never know",
+    "Be Agile",
+    "Succession planning",
+    "Insanity"
+  ]
+}

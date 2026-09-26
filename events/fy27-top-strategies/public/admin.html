@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Strategy Vote Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/rank.css">
+  <style>
+    .score-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .score-table th, .score-table td { padding: 9px 6px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; }
+    .score-table th:first-child, .score-table td:first-child { text-align: left; }
+    .score-table th { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .score-table td:nth-child(2) { font-weight: 800; }
+    details.strategy { border-bottom: 1px solid var(--line); padding: 12px 0; }
+    details.strategy summary { cursor: pointer; font-weight: 700; list-style-position: outside; }
+    details.strategy summary span { color: var(--muted); font-weight: 500; font-size: 13px; margin-left: 6px; }
+    .quotes { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+    .quotes li { background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); border-radius: 10px; padding: 10px 12px; font-size: 14px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .quotes li b { display: inline-block; font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 999px; margin-right: 8px; vertical-align: 1px; }
+    .none { color: var(--muted); font-size: 14px; margin: 10px 0 0; }
+  </style>
+</head>
+<body>
+  <header class="masthead">
+    <img src="/logo.png" alt="PetWorld — Bridging Lives">
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <span class="eyebrow">Organiser only</span>
+      <h1>Strategy ranking admin</h1>
+      <p>Keep this link private. It controls the vote.</p>
+    </section>
+
+    <div class="banner warn" id="err" hidden></div>
+
+    <div id="panel" hidden>
+      <section class="card">
+        <div class="card-head">
+          <h2>Overview</h2>
+          <span class="live" id="live"><i></i><span id="live-text">Open</span></span>
+        </div>
+        <div class="totals" style="border:0;margin:0;padding:0 0 16px">
+          <span><b id="total">0</b> responses</span>
+        </div>
+        <div class="actions">
+          <a class="btn small ghost" href="/" target="_blank" rel="noopener">Open voting page</a>
+          <a class="btn small ghost" href="/results" target="_blank" rel="noopener">Open big-screen results</a>
+          <a class="btn small ghost" id="csv" href="#">Download responses (Excel CSV)</a>
+          <button class="btn small" id="toggle">Close voting</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>All strategies</h2><span class="status">1st = 3 pts · 2nd = 2 · 3rd = 1</span></div>
+        <div style="overflow-x:auto">
+          <table class="score-table">
+            <thead><tr><th>Strategy</th><th>Points</th><th>#1</th><th>#2</th><th>#3</th></tr></thead>
+            <tbody id="scores"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>How people will apply them</h2><span class="status">Anonymous</span></div>
+        <div id="whys"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Danger zone</h2></div>
+        <p class="status" style="margin-top:0">Reset deletes every response and explanation, and lets all devices vote again.</p>
+        <button class="btn small danger" id="reset">Reset all responses</button>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/admin.js"></script>
+</body>
+</html>
