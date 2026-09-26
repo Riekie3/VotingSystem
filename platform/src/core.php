@@ -334,7 +334,7 @@ function csrf_check(): void
     start_session();
     $sent = $_POST['_csrf'] ?? ($_SERVER['HTTP_X_CSRF'] ?? '');
     if (!is_string($sent) || empty($_SESSION['csrf']) || !hash_equals($_SESSION['csrf'], $sent)) {
-        http_response_code(419);
+        http_response_code(403);
         view('message', ['title' => 'Session expired', 'message' => 'Your session expired. Go back, refresh the page and try again.']);
         exit;
     }

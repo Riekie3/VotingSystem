@@ -27,7 +27,7 @@ check "correct password logs in ($code)" '[ "$code" = 302 ]'
 code=$(curl -s -o /dev/null -w '%{http_code}' -b $ADMIN "$BASE/admin")
 check "dashboard loads" '[ "$code" = 200 ]'
 code=$(curl -s -o /dev/null -w '%{http_code}' -b $ADMIN -d "title=x" "$BASE/admin/polls/new")
-check "POST without CSRF token is refused ($code)" '[ "$code" = 419 ]'
+check "POST without CSRF token is refused ($code)" '[ "$code" = 403 ]'
 
 new_poll() { # type title options -> echoes poll id
   local C; C=$(csrf admin/polls/new)
