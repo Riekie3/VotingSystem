@@ -1,2 +1,11 @@
 # Live results, keys and logs from each event
 **/data/
+
+# Local-only secrets
+LOCAL-CREDENTIALS.md
+platform/config.php
+platform/uploads/*
+!platform/uploads/.htaccess
+platform/storage/*
+!platform/storage/.htaccess
+dist/
