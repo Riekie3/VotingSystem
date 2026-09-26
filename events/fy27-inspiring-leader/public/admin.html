@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voting Admin</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="masthead">
+    <img src="/logo.png" alt="PetWorld — Bridging Lives">
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <span class="eyebrow">Organiser only</span>
+      <h1>Voting admin</h1>
+      <p>Keep this link private — it controls the vote.</p>
+    </section>
+
+    <div class="banner warn" id="err" hidden></div>
+
+    <div id="panel" hidden>
+      <section class="card">
+        <div class="card-head">
+          <h2>Overview</h2>
+          <span class="live" id="live"><i></i><span id="live-text">Open</span></span>
+        </div>
+        <div class="totals" style="border:0;margin:0;padding:0 0 16px">
+          <span><b id="total">0</b> votes cast</span>
+          <span><b id="voters">0</b> devices voted</span>
+        </div>
+        <div class="actions">
+          <a class="btn small ghost" href="/" target="_blank" rel="noopener">Open voting page</a>
+          <a class="btn small ghost" href="/results" target="_blank" rel="noopener">Open big-screen results</a>
+          <button class="btn small" id="toggle">Close voting</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Special ballots</h2>
+          <span class="status" id="special-note"></span>
+        </div>
+        <p class="status" style="margin-top:0">Send one link to each of the 2 people who get extra votes. The first device to open a link claims it; nobody else can use it after that. It doesn't record who they vote for.</p>
+        <table class="admin-table">
+          <thead><tr><th>QR</th><th>Link</th><th>Status</th><th></th></tr></thead>
+          <tbody id="special"></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Danger zone</h2></div>
+        <p class="status" style="margin-top:0">Reset clears every vote and lets all devices vote again. Special links stay the same but are released.</p>
+        <button class="btn small danger" id="reset">Reset all votes</button>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script src="/admin.js"></script>
+</body>
+</html>
