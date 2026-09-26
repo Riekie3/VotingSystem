@@ -91,5 +91,15 @@ $fav = media_url($s['favicon_media_id']);
       <button class="btn small ghost" data-confirm="Log out of the admin panel on every device (including this one)?">⎋ Log out everywhere</button></form>
     <p class="hint">Version <?= e(APP_VERSION) ?></p>
   </div>
+  <form method="post" class="card" enctype="multipart/form-data">
+    <?= csrf_field() ?><input type="hidden" name="action" value="import">
+    <div class="card-head"><h2>Import old results</h2></div>
+    <p class="hint" style="margin-top:0">Bring in a vote from the original FY27 system: choose its <code>config.json</code> and its <code>data/state.json</code>. It becomes a closed, archived poll with the same results and comments.</p>
+    <div class="fields" style="grid-template-columns:1fr">
+      <label class="field"><span>config.json</span><input type="file" name="config" accept=".json,application/json" required></label>
+      <label class="field"><span>state.json</span><input type="file" name="state" accept=".json,application/json" required></label>
+    </div>
+    <p style="margin:16px 0 0"><button class="btn small">Import</button></p>
+  </form>
 </div>
 <?php require ROOT . '/views/admin/_bottom.php'; ?>

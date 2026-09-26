@@ -7,6 +7,21 @@ function admin_login(): void
 {
     if (admin_user()) redirect('admin');
     $error = null;
+    // Forgotten password: whoever controls the server files can drop RESET-PASSWORD.txt
+    // (first line = new password) into the app folder. It is applied once, then deleted.
+    $reset = ROOT . '/RESET-PASSWORD.txt';
+    if (is_file($reset)) {
+        $new = trim((string) strtok((string) file_get_contents($reset), "\r\n"));
+        @unlink($reset);
+        if (strlen($new) >= 10) {
+            q('UPDATE admins SET password_hash = ?, session_epoch = session_epoch + 1 ORDER BY id LIMIT 1', [password_hash($new, PASSWORD_DEFAULT)]);
+            audit('password_reset_file');
+            $error = null;
+            flash('Password reset from RESET-PASSWORD.txt (the file has been deleted). Log in with the new password.');
+        } else {
+            flash('RESET-PASSWORD.txt was ignored: the password must be at least 10 characters.', 'error');
+        }
+    }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         csrf_check();
         $error = login_attempt(trim((string) ($_POST['username'] ?? '')), (string) ($_POST['password'] ?? ''));
@@ -316,6 +331,22 @@ function admin_settings(): void
                 q('UPDATE admins SET password_hash = ? WHERE id = ?', [password_hash($new, PASSWORD_DEFAULT), $u['id']]);
                 audit('password_change');
                 flash('Password changed.');
+            }
+        } elseif ($action === 'import') {
+            require_once ROOT . '/src/legacy.php';
+            $read = function (string $field): array {
+                $f = $_FILES[$field] ?? null;
+                if (!$f || ($f['error'] ?? 1) !== UPLOAD_ERR_OK || $f['size'] > 2 * 1024 * 1024) throw new RuntimeException("Please choose the $field.json file.");
+                $data = json_decode((string) file_get_contents($f['tmp_name']), true);
+                if (!is_array($data)) throw new RuntimeException("$field.json is not valid JSON.");
+                return $data;
+            };
+            try {
+                [$pid, $msg] = import_legacy($read('config'), $read('state'));
+                flash($msg);
+                redirect("admin/polls/$pid/results");
+            } catch (RuntimeException $e) {
+                flash('Import failed: ' . $e->getMessage(), 'error');
             }
         } elseif ($action === 'logout_all') {
             q('UPDATE admins SET session_epoch = session_epoch + 1 WHERE id = ?', [$u['id']]);

@@ -173,14 +173,18 @@ Each phase ends with something working that you can try, and with a git commit a
 | Phase | Delivers | Size |
 |---|---|---|
 | **0: Merge** ✅ | Both FY27 votes combined in `VotingSystem/events/` with full history and all results | Done |
-| **1: Foundation** | PHP app skeleton, database, installer, admin login, dashboard, create/edit/delete **single-choice** polls, voting page + live projector in the FY27 design | M |
-| **2: All FY27 features** | Multiple-choice and ranked types, comments (required/optional), answers wall, moderation, access codes (special ballots), CSV export | M |
-| **3: Flexible look** | Logo/favicon/icon uploads, option photos/emoji, colour and font pickers, all text editable, live preview, duplicate poll, Trash | M |
-| **4: Show features** | Reveal mode, countdown, scheduled open/close, presentation mode, QR card sheet, Excel + PDF export | M |
-| **5: cPanel go-live** | Upload to your cPanel, subdomain + https, import the FY27 results as archived polls, backup/restore | S |
+| **1: Foundation** ✅ | PHP app skeleton, database, installer, admin login, dashboard, create/edit/delete **single-choice** polls, voting page + live projector in the FY27 design | M |
+| **2: All FY27 features** ✅ | Multiple-choice and ranked types, comments (required/optional), answers wall, moderation, access codes (special ballots), CSV export | M |
+| **3: Flexible look** ✅ | Logo/favicon/icon uploads, option photos/emoji, colour and font pickers, all text editable, live preview, duplicate poll, Trash | M |
+| **4: Show features** ✅ | Reveal mode, countdown, scheduled open/close, presentation mode, QR card sheet, Excel + PDF export | M |
+| **5: cPanel go-live** ✅ package ready | Upload to your cPanel, subdomain + https, import the FY27 results as archived polls, backup/restore | S |
 | **6: Extras** *(optional)* | Rating / word cloud / survey types, multi-language, multiple admins with roles | M |
 
 ---
+
+## Status (26 Sep 2026)
+
+Phases 1–5 are built and tested, plus **bars / pie / both** chart views. On cPanel: follow [DEPLOY-CPANEL.md](DEPLOY-CPANEL.md) with `dist/voting-system-v1.0.0.zip`. Phase 6 (extras) is not started.
 
 ## 9. Moving to cPanel (phase 5)
 

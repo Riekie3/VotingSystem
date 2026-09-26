@@ -14,6 +14,7 @@ require ROOT . '/views/partials/head.php';
       <div class="card-head"><h2>Admin log in</h2><span class="pill-note">Organiser only</span></div>
       <?php if ($installed): ?><div class="banner good">Installed successfully. Log in with the account you just created.</div><?php endif; ?>
       <?php if ($error): ?><div class="banner warn"><?= e($error) ?></div><?php endif; ?>
+      <?php if ($f = flash()): ?><div class="banner <?= $f[0] === 'ok' ? 'good' : 'warn' ?>"><?= e($f[1]) ?></div><?php endif; ?>
       <div class="fields" style="grid-template-columns:1fr">
         <label class="field"><span>Username</span><input name="username" autocomplete="username" required autofocus></label>
         <label class="field"><span>Password</span><input type="password" name="password" autocomplete="current-password" required></label>
