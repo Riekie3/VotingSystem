@@ -26,6 +26,7 @@ code=$(curl -s -o /dev/null -w '%{http_code}' -b $ADMIN -c $ADMIN --data-urlenco
 check "correct password logs in ($code)" '[ "$code" = 302 ]'
 code=$(curl -s -o /dev/null -w '%{http_code}' -b $ADMIN "$BASE/admin")
 check "dashboard loads" '[ "$code" = 200 ]'
+check "forgot-password page loads" 'curl -s "$BASE/admin/forgot" | grep -q "Reset your password"'
 code=$(curl -s -o /dev/null -w '%{http_code}' -b $ADMIN -d "title=x" "$BASE/admin/polls/new")
 check "POST without CSRF token is refused ($code)" '[ "$code" = 403 ]'
 

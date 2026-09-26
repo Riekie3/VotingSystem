@@ -39,6 +39,7 @@ try {
         switch (true) {
             case $a === '':                                   admin_dashboard(); break;
             case $a === 'login':                              admin_login(); break;
+            case $a === 'forgot':                             admin_forgot(); break;
             case $a === 'logout' && $method === 'POST':       admin_logout(); break;
             case $a === 'trash':                              admin_trash(); break;
             case $a === 'settings':                           admin_settings(); break;

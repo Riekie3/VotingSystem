@@ -2,7 +2,6 @@
 **/data/
 
 # Local-only secrets
-LOCAL-CREDENTIALS.md
 platform/config.php
 platform/uploads/*
 !platform/uploads/.htaccess

@@ -83,6 +83,21 @@ $fav = media_url($s['favicon_media_id']);
     </div>
     <p style="margin:16px 0 0"><button class="btn small">Change password</button></p>
   </form>
+  <form method="post" class="card" autocomplete="off">
+    <?= csrf_field() ?><input type="hidden" name="action" value="recovery">
+    <div class="card-head"><h2>Recovery code</h2>
+      <span class="pill-note"><?= (string) $s['recovery_hash'] !== '' ? 'Active' : 'Not set' ?></span></div>
+    <?php start_session(); if (!empty($_SESSION['recovery_show'])): ?>
+      <div class="banner good"><b>Your new recovery code:</b><br><span class="mono" style="font-size:19px;font-weight:800"><?= e($_SESSION['recovery_show']) ?></span><br>
+        <small>Shown only this once. Write it down or save it in your phone. Any older code no longer works.</small></div>
+      <?php unset($_SESSION['recovery_show']); endif; ?>
+    <p class="hint" style="margin-top:0">Lets you reset your password from the login page (“Forgot password?”) without email. Each code works once.
+      <?php if (!empty($s['recovery_created']) && (string) $s['recovery_hash'] !== ''): ?>Current code created <?= e(date('j M Y', strtotime($s['recovery_created']))) ?>.<?php endif; ?></p>
+    <div class="fields" style="grid-template-columns:1fr">
+      <label class="field"><span>Your current password</span><input type="password" name="current" autocomplete="current-password" required></label>
+    </div>
+    <p style="margin:16px 0 0"><button class="btn small"><?= (string) $s['recovery_hash'] !== '' ? 'Replace recovery code' : 'Create recovery code' ?></button></p>
+  </form>
   <div class="card">
     <div class="card-head"><h2>Backup &amp; security</h2></div>
     <p class="hint" style="margin-top:0">Download everything (database + uploaded images) as one zip. Keep it somewhere safe — it's also how you move the system to another server.</p>

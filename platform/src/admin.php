@@ -30,6 +30,40 @@ function admin_login(): void
     view('admin/login', ['error' => $error, 'installed' => isset($_GET['installed'])]);
 }
 
+/** Forgot password: username + one-time recovery code + new password. */
+function admin_forgot(): void
+{
+    if (admin_user()) redirect('admin');
+    $error = null;
+    $hasCode = (string) setting('recovery_hash', '') !== '';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        csrf_check();
+        $ip = client_ip();
+        q('DELETE FROM login_attempts WHERE attempted_at < ?', [date('Y-m-d H:i:s', time() - 900)]);
+        $u = one('SELECT * FROM admins WHERE username = ?', [trim((string) ($_POST['username'] ?? ''))]);
+        $code = recovery_normalize((string) ($_POST['code'] ?? ''));
+        $new = (string) ($_POST['new'] ?? '');
+        if ((int) val('SELECT COUNT(*) FROM login_attempts WHERE ip = ?', [$ip]) >= 8) {
+            $error = 'Too many attempts. Please wait 15 minutes and try again.';
+        } elseif (!$u || !$hasCode || !password_verify($code, (string) setting('recovery_hash'))) {
+            q('INSERT INTO login_attempts (ip, attempted_at) VALUES (?, ?)', [$ip, now()]);
+            $error = 'That username and recovery code do not match.';
+        } elseif (strlen($new) < 10) {
+            $error = 'The new password must be at least 10 characters.';
+        } elseif ($new !== ($_POST['new2'] ?? '')) {
+            $error = 'The two new passwords do not match.';
+        } else {
+            q('UPDATE admins SET password_hash = ?, session_epoch = session_epoch + 1 WHERE id = ?', [password_hash($new, PASSWORD_DEFAULT), $u['id']]);
+            setting_set('recovery_hash', ''); // one-time use
+            q('DELETE FROM login_attempts WHERE ip = ?', [$ip]);
+            audit('password_reset_code', $u['username']);
+            flash('Password changed. That recovery code is now used up — after logging in, create a new one in Branding & settings.');
+            redirect('admin/login');
+        }
+    }
+    view('admin/forgot', ['error' => $error, 'hasCode' => $hasCode]);
+}
+
 function admin_logout(): void
 {
     csrf_check();
@@ -347,6 +381,14 @@ function admin_settings(): void
                 redirect("admin/polls/$pid/results");
             } catch (RuntimeException $e) {
                 flash('Import failed: ' . $e->getMessage(), 'error');
+            }
+        } elseif ($action === 'recovery') {
+            if (!password_verify((string) ($_POST['current'] ?? ''), $u['password_hash'])) {
+                flash('Enter your current password to create a recovery code.', 'error');
+            } else {
+                start_session();
+                $_SESSION['recovery_show'] = recovery_new();
+                audit('recovery_code_created');
             }
         } elseif ($action === 'logout_all') {
             q('UPDATE admins SET session_epoch = session_epoch + 1 WHERE id = ?', [$u['id']]);

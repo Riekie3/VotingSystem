@@ -41,6 +41,12 @@ function page_install(): void
                     ->execute([$in['username'], password_hash($in['password'], PASSWORD_DEFAULT), $t]);
                 $set = $pdo->prepare('INSERT INTO settings (k, v) VALUES (?, ?)');
                 $set->execute(['site_title', $in['site_title'] ?: 'WKC Voting']);
+                // First one-time recovery code, shown once on the login page.
+                $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                $raw = '';
+                for ($i = 0; $i < 16; $i++) $raw .= $alphabet[random_int(0, 31)];
+                $set->execute(['recovery_hash', password_hash($raw, PASSWORD_DEFAULT)]);
+                $set->execute(['recovery_created', $t]);
                 require_once ROOT . '/src/migrate.php';
                 $set->execute(['db_version', (string) DB_VERSION]);
                 // Default logo (PetWorld) so the first poll already looks right.
@@ -60,6 +66,8 @@ function page_install(): void
                 $php = "<?php\n// Created by the installer. Keep this file private.\nreturn " . var_export($config, true) . ";\n";
                 if (file_put_contents(CONFIG_FILE, $php) === false) throw new RuntimeException('Could not write config.php.');
                 @chmod(CONFIG_FILE, 0640);
+                start_session();
+                $_SESSION['recovery_show'] = implode('-', str_split($raw, 4));
                 redirect('admin/login?installed=1');
             } catch (Throwable $t) {
                 $errors[] = $t->getMessage();

@@ -37,6 +37,8 @@ Open `https://vote.yourdomain.com/` in your browser. The installer appears.
 
 Click **Install**. It creates the tables, your admin account and a private `config.php`, then locks itself.
 
+The login page then shows your **recovery code** once. Save it (photo or password manager). It lets you reset a forgotten password.
+
 ## 5. Turn on HTTPS
 
 cPanel → **SSL/TLS Status** → select the subdomain → **Run AutoSSL**. It usually takes a few minutes.
@@ -71,4 +73,4 @@ Install fresh (steps 1–5). Then import `database.sql` from your backup zip int
 | "config.php cannot be created" | Set the app folder's permissions to 755. |
 | Pages other than the home page show "Not Found" | The `.htaccess` file didn't upload. Re-extract the zip with hidden files shown. |
 | Logo upload fails | Make `uploads/` writable (755). The limit is 5 MB per image. |
-| Forgot admin password | In File Manager, create a file named `RESET-PASSWORD.txt` in the app folder with your new password (10+ characters) on the first line. Then open `/admin/login`. The password is applied and the file is deleted automatically. |
+| Forgot admin password | On the login page click **Forgot password?** and use your **recovery code**. It is shown once after install, and you can make a new one in Branding & settings. Lost that too? In File Manager, create `RESET-PASSWORD.txt` in the app folder with a new password (10+ characters) on the first line, then open `/admin/login`. It is applied and the file deletes itself. |

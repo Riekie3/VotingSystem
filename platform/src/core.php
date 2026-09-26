@@ -182,6 +182,8 @@ const SETTING_DEFAULTS = [
     'home_mode'     => 'list',   // list | redirect | blank
     'home_slug'     => '',
     'texts'         => '{}',
+    'recovery_hash' => '',
+    'recovery_created' => '',
 ];
 
 const FONT_PAIRS = [
@@ -385,6 +387,24 @@ function login_attempt(string $username, string $password): ?string
     q('DELETE FROM login_attempts WHERE ip = ?', [$ip]);
     audit('login', $username);
     return null;
+}
+
+// ---------- recovery code (forgotten password without email) ----------
+
+function recovery_normalize(string $code): string
+{
+    return strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $code));
+}
+
+/** Creates a new one-time recovery code, stores only its hash, and returns it for display. */
+function recovery_new(): string
+{
+    $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    $raw = '';
+    for ($i = 0; $i < 16; $i++) $raw .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+    setting_set('recovery_hash', password_hash($raw, PASSWORD_DEFAULT));
+    setting_set('recovery_created', now());
+    return implode('-', str_split($raw, 4));
 }
 
 function logout(): void

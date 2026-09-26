@@ -90,6 +90,16 @@ body::before {
 }
 a { color: var(--accent-ink); }
 [hidden] { display: none !important; }
+
+/* Native dropdown lists: Windows draws them on white unless told otherwise, which made
+   light theme-coloured text unreadable. Give the options their own solid colours. */
+select option, select optgroup { background-color: #ffffff; color: #15171c; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) select option, :root:not([data-theme="light"]) select optgroup { background-color: #1b1d23; color: #f3f1ec; }
+}
+:root[data-theme="dark"] select option, :root[data-theme="dark"] select optgroup { background-color: #1b1d23; color: #f3f1ec; }
+select option:checked { background-color: var(--accent); color: var(--on-accent); }
+
 .wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
