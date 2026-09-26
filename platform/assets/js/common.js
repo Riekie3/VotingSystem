@@ -184,9 +184,10 @@
           if (delta) e.animate([{ transform: `translateY(${delta}px)` }, { transform: 'none' }], { duration: 700, easing: ease });
         }
       }
-      requestAnimationFrame(() => {
+      // A timer (not requestAnimationFrame) so bars still fill if the window is in the background.
+      setTimeout(() => {
         for (const r of top) rowEl(r).querySelector('.fill').style.width = (r.score / max) * 100 + '%';
-      });
+      }, 30);
 
       if (empty) empty.hidden = top.length > 0;
       if (total) tween(total, res.responses);
@@ -243,10 +244,10 @@
         const start = offset;
         c.style.stroke = it.color;
         // Next frame, so new slices animate from zero; offset 25 starts the ring at 12 o'clock.
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           c.style.strokeDasharray = `${len} ${100 - len}`;
           c.style.strokeDashoffset = String(25 - start);
-        });
+        }, 30);
         offset += pct;
       }
       tween(host.querySelector('.center .num'), res.responses);
@@ -285,11 +286,13 @@
    * Polls a results URL. Sends the version we already have; the server answers
    * with a tiny "same" reply when nothing changed. Pauses while the tab is hidden.
    */
-  function poller(url, onData, { every = 2000, safeToReload = () => true } = {}) {
-    let version = 0, timer = null, build = null, pendingReload = false, busy = false;
+  function poller(url, onData, { every = 2000, safeToReload = () => true, pauseWhenHidden = true } = {}) {
+    let version = 0, timer = null, build = null, pendingReload = false, busy = false, first = true;
     async function tick() {
       clearTimeout(timer);
-      if (document.hidden) { timer = setTimeout(tick, every); return; }
+      // Always load once straight away; afterwards pause while the tab is hidden.
+      if (pauseWhenHidden && document.hidden && !first) { timer = setTimeout(tick, every); return; }
+      first = false;
       if (busy) return;
       busy = true;
       try {

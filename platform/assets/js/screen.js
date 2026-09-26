@@ -37,6 +37,7 @@
   function showWaiting(responses) {
     $('reveal-wait').hidden = false;
     $('viz').hidden = true;
+    $('totals').hidden = true;
     $('empty').hidden = true;
     $('reveal-count').textContent = responses ?? 0;
   }
@@ -83,6 +84,7 @@
     if (live.reveal === 'hidden' || !res) { showWaiting(data.responses); lastReveal = live.reveal; return; }
     $('reveal-wait').hidden = true;
     $('viz').hidden = false;
+    $('totals').hidden = false;
     $('viz').classList.toggle('no-data', !res.rows.some(r => r.score > 0));
     $('total-label').textContent = 'responses';
     if (lastReveal === 'hidden' && live.reveal === 'revealed' && !revealing) { lastReveal = live.reveal; playReveal(res); return; }
@@ -138,7 +140,7 @@
         renderResults(d);
         if (live.version !== answersVersion) { answersVersion = live.version; loadAnswers(); }
       }
-    }, { every: 1500, safeToReload: () => !revealing });
+    }, { every: 1500, safeToReload: () => !revealing, pauseWhenHidden: false });
   }
 
   boot().catch(err => console.error(err));
