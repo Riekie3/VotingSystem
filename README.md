@@ -10,6 +10,31 @@ Live, anonymous voting for events. Phones vote with no login, a projector shows 
 | `events/` | The original FY27 Retreat votes (Node.js), kept exactly as they ran. |
 | `dist/` | Built release zips (not in git). Build one with `php platform/tools/build_release.php`. |
 
+## Screenshots
+
+Captured from a demo install with made-up names and votes.
+
+### Voting on phones
+![Voting on phones](docs/screenshots/collage-phones.jpg)
+
+### Projector (big screen)
+![Projector views](docs/screenshots/collage-projector.jpg)
+
+### Admin panel
+![Admin panel](docs/screenshots/collage-admin.jpg)
+
+<details><summary>Full-size individual screenshots</summary>
+
+**Phones:** [home](docs/screenshots/phone-01-home.jpg) · [vote](docs/screenshots/phone-02-vote.jpg) · [multi emoji](docs/screenshots/phone-03-multi-emoji.jpg) · [ranked comments](docs/screenshots/phone-04-ranked-comments.jpg) · [access code](docs/screenshots/phone-05-access-code.jpg) · [thanks pie](docs/screenshots/phone-06-thanks-pie.jpg)
+
+**Projector:** [bars](docs/screenshots/screen-01-bars.jpg) · [pie](docs/screenshots/screen-02-pie.jpg) · [both](docs/screenshots/screen-03-both.jpg) · [reveal waiting](docs/screenshots/screen-04-reveal-waiting.jpg) · [ranked](docs/screenshots/screen-05-ranked.jpg) · [answers wall](docs/screenshots/screen-06-answers-wall.jpg) · [emoji pie](docs/screenshots/screen-07-emoji-pie.jpg)
+
+**Admin:** [installer](docs/screenshots/admin-01-installer.jpg) · [login](docs/screenshots/admin-02-login.jpg) · [forgot](docs/screenshots/admin-03-forgot.jpg) · [dashboard](docs/screenshots/admin-04-dashboard.jpg) · [new poll](docs/screenshots/admin-05-new-poll.jpg) · [editor](docs/screenshots/admin-06-editor.jpg) · [editor options](docs/screenshots/admin-07-editor-options.jpg) · [results](docs/screenshots/admin-08-results.jpg) · [access codes](docs/screenshots/admin-09-access-codes.jpg) · [qr cards](docs/screenshots/admin-10-qr-cards.jpg) · [report](docs/screenshots/admin-11-report.jpg) · [presentation](docs/screenshots/admin-12-presentation.jpg) · [settings](docs/screenshots/admin-13-settings.jpg) · [trash](docs/screenshots/admin-14-trash.jpg)
+
+</details>
+
+To regenerate after design changes: run a fresh install on an empty database, then `node docs/screenshots/capture.mjs http://127.0.0.1:18996`.
+
 ## What the platform does
 
 - **Voting pages you manage:** create, edit, duplicate, archive, delete (Trash with restore). Every text, the logo, favicon, colours, fonts and each option's icon (initials, emoji or photo) are editable in the admin panel.
